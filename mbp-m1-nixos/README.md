@@ -11,6 +11,10 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added fastfetch
+- **System packages:** `fastfetch` (system information tool). `btop` was already installed
+  (see "Added packages, Samba server"), so nothing changed for it.
+
 ### Added LibreOffice and VS Code
 - **System packages:** `libreoffice-qt6-fresh` (office suite, Qt6 build that fits KDE Plasma)
   and `vscode` (Visual Studio Code).
