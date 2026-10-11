@@ -11,6 +11,13 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added LibreOffice and VS Code
+- **System packages:** `libreoffice-qt6-fresh` (office suite, Qt6 build that fits KDE Plasma)
+  and `vscode` (Visual Studio Code).
+- `vscode` is unfree software; this is already allowed by `nixpkgs.config.allowUnfree = true;`.
+- Dutch spell checking / hyphenation for LibreOffice is not added yet; add
+  `hunspellDicts.nl_nl` (and optionally `hyphenDicts.nl_NL`) to the package list if needed.
+
 ### Added packages, Samba server
 - **System packages:** `git`, `openssh` (provides `ssh-keygen`), `btop`.
 - **Samba server:** enabled via `services.samba` with a single share `shared`
