@@ -102,6 +102,7 @@
     openssh  # Provides ssh-keygen (there is no separate ssh-keygen package)
     btop     # Interactive resource monitor
     fastfetch  # Fast system information tool (neofetch replacement)
+    python3  # Python interpreter (use venvs or nix-shell for project-specific libraries)
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.

@@ -11,6 +11,17 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added Python
+- **System packages:** `python3` (interpreter, includes `venv` and the standard library).
+- On NixOS, avoid `pip install` into the system Python. Use a virtual environment per
+  project instead:
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install <package>
+  ```
+  Or use `nix-shell -p python3Packages.<package>` for a temporary environment.
+
 ### Added fastfetch
 - **System packages:** `fastfetch` (system information tool). `btop` was already installed
   (see "Added packages, Samba server"), so nothing changed for it.
