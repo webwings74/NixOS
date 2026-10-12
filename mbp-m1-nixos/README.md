@@ -11,6 +11,15 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added nix-ld (Claude Code VS Code extension)
+- `programs.nix-ld.enable = true;` provides a compatible dynamic linker so prebuilt Linux
+  binaries can run on NixOS, needed for running e.g. Claude Code in VS Code.
+- Fixes the Claude Code extension error "Could not start dynamically linked executable"
+  (exit code 127, see https://nix.dev/permalink/stub-ld).
+- After `nixos-rebuild switch`, fully restart VS Code (close all windows) and reload the
+  extension. If a binary still complains about a missing `.so` file, add the library via
+  `programs.nix-ld.libraries = with pkgs; [ ... ];`.
+
 ### Added Python
 - **System packages:** `python3` (interpreter, includes `venv` and the standard library).
 - On NixOS, avoid `pip install` into the system Python. Use a virtual environment per

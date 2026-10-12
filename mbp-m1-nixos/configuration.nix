@@ -92,6 +92,10 @@
   # Enable zsh system-wide (required before it can be used as a login shell)
   programs.zsh.enable = true;
 
+  # nix-ld: lets prebuilt, dynamically linked Linux binaries run on NixOS.
+  # Needed for the Claude Code VS Code extension, which ships a generic native binary.
+  programs.nix-ld.enable = true;
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
