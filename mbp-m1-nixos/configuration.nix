@@ -109,6 +109,7 @@
     python3  # Python interpreter (use venvs or nix-shell for project-specific libraries)
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
+    mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #   wget
   ];
@@ -126,6 +127,9 @@
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
+  # NixOS Enable Flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  
   # Samba server: shares ~/shared with other machines on the network.
   # After the first rebuild, set a Samba password once (it is separate
   # from the login password):  sudo smbpasswd -a rvdveldt

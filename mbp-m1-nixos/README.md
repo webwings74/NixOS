@@ -11,6 +11,18 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added mistral-vibe
+- **System packages:** `mistral-vibe` (Mistral Vibe CLI, command-line coding assistant).
+  Start it with `vibe` after `nixos-rebuild switch`.
+- `nix.settings.experimental-features = [ "nix-command" "flakes" ];` was already present in
+  `configuration.nix`. If `nix run ...` still fails with "experimental Nix feature
+  'nix-command' is disabled", the running system does not have this setting yet (or it is
+  a different machine/config): run `nixos-rebuild switch` first, or pass
+  `--extra-experimental-features "nix-command flakes"` once.
+- Quick try without installing: `nix run nixpkgs#mistral-vibe`.
+- If the build fails with "attribute 'mistral-vibe' missing", the nixpkgs revision in use is
+  too old; update the channel (`sudo nix-channel --update`) or use `nixos-unstable`.
+
 ### Added nix-ld (Claude Code VS Code extension)
 - `programs.nix-ld.enable = true;` provides a compatible dynamic linker so prebuilt Linux
   binaries can run on NixOS, needed for running e.g. Claude Code in VS Code.
