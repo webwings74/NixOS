@@ -1,5 +1,5 @@
 # NixOS Configurations
-These are the configuration files of all NixOS devices and Virtual Machines. 
+These are the configuration files of all NixOS devices and Virtual Machines. Currently installed Linux Kernel 6.18. Available kernel version is 7.2, which I will try out soon.
 
 ## Current Devices
 
