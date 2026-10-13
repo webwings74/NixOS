@@ -1,5 +1,8 @@
-# NixOS Configuration
-These are the configuration files of all NixOS devices and Virtual Machines.
+# NixOS Configurations
+These are the configuration files of all NixOS devices and Virtual Machines. 
 
-## Macbook Pro M1 Virtual Machine
-In the subfolder mbp-m1-nixos, including the relevant README.md
+## Current Devices
+
+### Macbook Pro M1 Virtual Machine
+This installation is a KDE Plasma GUI version using Parallels Desktop on my Macbook Pro M1. The 
+configuration files are in the subfolder mbp-m1-nixos, including the relevant README.md
