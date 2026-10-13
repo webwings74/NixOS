@@ -11,21 +11,42 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
-### Added mistral-vibe
-- **System packages:** `mistral-vibe` (Mistral Vibe CLI, command-line coding assistant).
-  Start it with `vibe` after `nixos-rebuild switch`.
-- `nix.settings.experimental-features = [ "nix-command" "flakes" ];` was already present in
-  `configuration.nix`. If `nix run ...` still fails with "experimental Nix feature
-  'nix-command' is disabled", the running system does not have this setting yet (or it is
-  a different machine/config): run `nixos-rebuild switch` first, or pass
-  `--extra-experimental-features "nix-command flakes"` once.
-- Quick try without installing: `nix run nixpkgs#mistral-vibe`.
-- If the build fails with "attribute 'mistral-vibe' missing", the nixpkgs revision in use is
-  too old; update the channel (`sudo nix-channel --update`) or use `nixos-unstable`.
+### Added MariaDB/MySQL command-line client
+- **System packages:** `mariadb.client` (provides `mariadb` and `mysql`).
+- Connect to the Synology: `mariadb -h <synology-ip> -u <db-user> -p <database-name>`
+  (`-p` without a value prompts for the password, so it stays out of the shell history).
+
+### Added ODBC (LibreOffice Base to MySQL/MariaDB on the Synology)
+- **System packages:** `unixODBC` (driver manager, provides `isql` and `odbcinst`).
+- **Driver:** `pkgs.unixODBCDrivers.mariadb` (MariaDB/MySQL ODBC driver), registered by hand in
+  `/etc/odbcinst.ini` via `environment.etc."odbcinst.ini"` under the name `[MariaDB]`.
+  The generic `environment.unixODBCDrivers` option was not used: it points to
+  `lib/libmaodbc.so`, while the library is in `lib/mariadb/libmaodbc.so`
+  (error: "Can't open lib ... file not found").
+  The driver also could not find its own `libmariadb.so.3` (`ldd` showed `not found`), so the
+  package is overridden with `patchelf --add-rpath $out/lib/mariadb` on `libmaodbc.so`.
+  This makes the first rebuild compile the driver locally.
+  (There is no top-level `mariadb-connector-odbc` package in nixpkgs.)
+- **Check the registered driver name:** `odbcinst -q -d` (use that exact name as `Driver =`
+  in `~/.odbc.ini`).
+- **Data source (per user):** create `~/.odbc.ini`, for example:
+  ```ini
+  [Synology]
+  Driver   = <name from odbcinst -q -d>
+  SERVER   = <synology-ip>
+  PORT     = 3306
+  DATABASE = <database-name>
+  USER     = <db-user>
+  ```
+  Leave the password out of the file; LibreOffice Base asks for it.
+- **Test from a terminal:** `isql -v Synology <db-user> <password>`
+- **LibreOffice Base:** Connect to an existing database -> ODBC -> data source name `Synology`.
+- **Synology side:** in the MariaDB 10 package enable TCP/IP connections, and allow the
+  database user to connect from the laptop's IP (`'user'@'<ip>'` or `'user'@'%'`).
 
 ### Added nix-ld (Claude Code VS Code extension)
 - `programs.nix-ld.enable = true;` provides a compatible dynamic linker so prebuilt Linux
-  binaries can run on NixOS, needed for running e.g. Claude Code in VS Code.
+  binaries can run on NixOS.
 - Fixes the Claude Code extension error "Could not start dynamically linked executable"
   (exit code 127, see https://nix.dev/permalink/stub-ld).
 - After `nixos-rebuild switch`, fully restart VS Code (close all windows) and reload the

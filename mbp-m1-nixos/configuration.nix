@@ -110,9 +110,30 @@
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
+    unixODBC  # ODBC driver manager (provides isql / odbcinst for testing connections)
+    mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #   wget
   ];
+
+  # ODBC driver registration. The generic environment.unixODBCDrivers option points to
+  # lib/libmaodbc.so, but in this package the library lives in lib/mariadb/, so the
+  # driver is registered by hand. The MariaDB driver also works for MySQL servers.
+  environment.etc."odbcinst.ini".text =
+    let
+      # The driver cannot find its own libmariadb.so.3 (same directory), so add that
+      # directory to the RPATH of libmaodbc.so. This rebuilds the package locally.
+      mariadbOdbc = pkgs.unixODBCDrivers.mariadb.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patchelf ];
+        postFixup = (old.postFixup or "") + ''
+          patchelf --add-rpath $out/lib/mariadb $out/lib/mariadb/libmaodbc.so
+        '';
+      });
+    in ''
+      [MariaDB]
+      Description = MariaDB/MySQL ODBC driver
+      Driver = ${mariadbOdbc}/lib/mariadb/libmaodbc.so
+    '';
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
