@@ -11,6 +11,21 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Fixed evaluation warnings (renamed packages)
+- `unixODBC` is now `unixodbc` and `unixODBCDrivers` is now `unixodbcDrivers` in nixpkgs.
+  Updated in `configuration.nix`; the old names still worked but gave warnings.
+- Harmless messages seen during rebuild: `Couldn't satisfy dependency libcrypt.so.1` (initrd
+  build) and `lib/firmware/edid not found, skipping`.
+
+### Linux kernel 7.2
+- `boot.kernelPackages = pkgs.linuxKernel.packages.linux_7_2;` boots kernel 7.2 instead of the
+  NixOS default. Adding the kernel to `environment.systemPackages` would not do this, it only
+  installs the files; `boot.kernelPackages` also builds the matching kernel modules.
+- Reboot after `nixos-rebuild switch`, then check with `uname -r`.
+- Parallels Tools (`prl-tools`) is a kernel module and may fail to build on a newer kernel.
+  If that happens, or the VM misbehaves, pick the previous generation in the systemd-boot
+  menu at startup, or remove the `boot.kernelPackages` line and rebuild.
+
 ### Added MariaDB/MySQL command-line client
 - **System packages:** `mariadb.client` (provides `mariadb` and `mysql`).
 - Connect to the Synology: `mariadb -h <synology-ip> -u <db-user> -p <database-name>`

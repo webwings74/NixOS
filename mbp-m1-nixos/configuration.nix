@@ -14,6 +14,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Boot Linux kernel 7.2 instead of the NixOS default kernel.
+  # Kernel modules (such as prl-tools for Parallels) are built for this same version.
+  boot.kernelPackages = pkgs.linuxKernel.packages.linux_7_2;
+
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -110,7 +114,7 @@
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
-    unixODBC  # ODBC driver manager (provides isql / odbcinst for testing connections)
+    unixodbc  # ODBC driver manager (provides isql / odbcinst for testing connections)
     mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #   wget
@@ -123,7 +127,7 @@
     let
       # The driver cannot find its own libmariadb.so.3 (same directory), so add that
       # directory to the RPATH of libmaodbc.so. This rebuilds the package locally.
-      mariadbOdbc = pkgs.unixODBCDrivers.mariadb.overrideAttrs (old: {
+      mariadbOdbc = pkgs.unixodbcDrivers.mariadb.overrideAttrs (old: {
         nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patchelf ];
         postFixup = (old.postFixup or "") + ''
           patchelf --add-rpath $out/lib/mariadb $out/lib/mariadb/libmaodbc.so
