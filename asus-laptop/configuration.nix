@@ -97,7 +97,16 @@
   programs.firefox.enable = true;
 
   # Enable zsh system-wide (required before it can be used as a login shell)
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    # Configure OhMyZSH
+    ohMyZsh = {
+      enable = true;
+      # Setup Theme
+      theme = "agnoster";
+      plugins = [ "git" "sudo" "docker" ];
+    };
+  };
 
   # nix-ld: lets prebuilt, dynamically linked Linux binaries run on NixOS.
   # Needed for the Claude Code VS Code extension, which ships a generic native binary.
@@ -122,6 +131,7 @@
     mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #   wget
+    zsh       # Use ZSH as default, i.s.o. BASH
   ];
 
   # ODBC driver registration. The generic environment.unixODBCDrivers option points to
