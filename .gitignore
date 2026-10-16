@@ -1,0 +1,6 @@
+# Git Ignore File for NixOS Configurations
+
+# Synology Server files
+.DS_Store
+@eaDir/
+
