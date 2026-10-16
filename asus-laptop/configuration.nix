@@ -1,6 +1,6 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
+# NixOS configuration: Hyprland (Wayland) setup.
+# The KDE Plasma version of this file is kept as configuration.kde.nix.
+# Help: configuration.nix(5), https://search.nixos.org/options, `nixos-help`.
 
 { config, pkgs, ... }:
 
@@ -18,7 +18,7 @@
   # Kernel modules (such as prl-tools for Parallels) are built for this same version.
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_7_2;
 
-  networking.hostName = "asus-nixos"; # Define your hostname.
+  networking.hostName = "asus-nixos";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -41,36 +41,42 @@
     LC_TIME = "nl_NL.UTF-8";
   };
 
-  # ===== HYPRLAND WAYLAND CONFIGURATION =====
-  # Disable X11 for pure Wayland experience with Hyprland
-  services.xserver.enable = false;
+  # ===== HYPRLAND =====
 
-  # Enable Hyprland - a dynamic tiling Wayland compositor
-  programs.hyprland = {
-    enable = true;
+  # Hyprland itself is pure Wayland. The X server is only enabled so SDDM can
+  # run its greeter on X11, which is far more reliable than the Wayland greeter
+  # (the Wayland greeter pulls in kwin and often ends in a blinking cursor).
+  services.xserver.enable = true;
+
+  # Keymap for the X11 greeter (Hyprland has its own keymap, set in hyprland.conf).
+  services.xserver.xkb = {
+    layout = "nl";
+    variant = "us";
   };
 
-  # Enable SDDM display manager for session selection
-  services.displayManager.sddm = {
-    enable = true;
-    # displayServer = "wayland";
-    wayland.enable = true;
-  };
-
-  # Configure console keymap
+  # Console keymap
   console.keyMap = "nl";
 
-  # Wayland session environment variables
-  environment.sessionVariables = {
-    WAYLAND_DISPLAY = "wayland-1";
-    XDG_SESSION_TYPE = "wayland";
-    XDG_CURRENT_DESKTOP = "Hyprland";
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;  # Run X11 apps inside Hyprland
   };
 
-  # Enable touchpad support for Wayland
+  # SDDM display manager with an X11 greeter; Hyprland appears as a session.
+  services.displayManager.sddm.enable = true;
+  services.displayManager.defaultSession = "hyprland";
+
+  # Do NOT set WAYLAND_DISPLAY, XDG_SESSION_TYPE or XDG_CURRENT_DESKTOP here:
+  # the compositor sets those itself, and overriding them breaks the session.
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";  # Electron apps (VS Code, ...) use Wayland natively
+  };
+
+  # Authentication agent and touchpad support
+  security.polkit.enable = true;
   services.libinput.enable = true;
 
-  # ==========================================
+  # ====================
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -89,7 +95,7 @@
   users.users."rvdveldt" = {
     isNormalUser = true;
     description = "Richard van der Veldt";
-    extraGroups = [ "networkmanager" "wheel" "video" "seat" ]; # Added video and seat for Wayland
+    extraGroups = [ "networkmanager" "wheel" "video" ];
     shell = pkgs.zsh;  # Default login shell
     packages = with pkgs; [
       kdePackages.kate
@@ -110,6 +116,7 @@
   };
 
   # nix-ld: lets prebuilt, dynamically linked Linux binaries run on NixOS.
+  # Needed for the Claude Code VS Code extension, which ships a generic native binary.
   programs.nix-ld.enable = true;
 
   # Allow unfree packages
@@ -129,16 +136,23 @@
     unixodbc  # ODBC driver manager
     mariadb.client  # MariaDB/MySQL client
     zsh       # ZSH shell
-    # Hyprland-specific packages
+
+    # Hyprland desktop tooling
+    kitty     # Terminal (default in Hyprland's generated config)
+    alacritty # Alternative terminal
+    wofi      # Launcher (default in Hyprland's generated config)
+    rofi      # Alternative launcher
     waybar    # Status bar
-    rofi       # Application launcher
-    wl-clipboard  # Wayland clipboard utilities
-    grim       # Screenshot utility for Wayland
-    slurp      # Region selection for screenshots
-    swaylock   # Screen locker
-    swayidle   # Idle management
-    alacritty  # Terminal emulator (Wayland native)
-    firefox   # Browser
+    mako      # Notification daemon
+    hyprpolkitagent  # Polkit authentication agent for Hyprland
+    wl-clipboard  # Wayland clipboard utilities (wl-copy / wl-paste)
+    grim      # Screenshot utility for Wayland
+    slurp     # Region selection for screenshots
+    swaylock  # Screen locker
+    swayidle  # Idle management
+    kdePackages.dolphin  # File manager (default in Hyprland's generated config)
+    networkmanagerapplet # Network tray icon (nm-applet)
+    pavucontrol  # Volume control
   ];
 
   # ODBC driver registration
@@ -156,7 +170,8 @@
       Driver = ${mariadbOdbc}/lib/mariadb/libmaodbc.so
     '';
 
-  # Samba server
+  # Samba server: shares ~/shared with other machines on the network.
+  # After the first rebuild, set a Samba password once:  sudo smbpasswd -a rvdveldt
   services.samba = {
     enable = true;
     openFirewall = true;
@@ -180,11 +195,13 @@
     };
   };
 
+  # Make the share discoverable from Windows (WS-Discovery)
   services.samba-wsdd = {
     enable = true;
     openFirewall = true;
   };
 
+  # Network discovery (Synology by name, *.local hostnames)
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -193,6 +210,7 @@
 
   networking.firewall.allowedUDPPorts = [ 3702 ];
 
+  # Make sure the shared directory exists, owned by the user
   systemd.tmpfiles.rules = [
     "d /home/rvdveldt/shared 0755 rvdveldt users -"
   ];
@@ -200,6 +218,7 @@
   # NixOS Enable Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Do NOT change this after the initial install.
   system.stateVersion = "26.05";
 
 }
