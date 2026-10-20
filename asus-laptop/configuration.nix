@@ -1,6 +1,6 @@
-# NixOS configuration: Hyprland (Wayland) setup.
-# The KDE Plasma version of this file is kept as configuration.kde.nix.
-# Help: configuration.nix(5), https://search.nixos.org/options, `nixos-help`.
+# Edit this configuration file to define what should be installed on
+# your system. Help is available in the configuration.nix(5) man page, on
+# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, pkgs, ... }:
 
@@ -18,7 +18,12 @@
   # Kernel modules (such as prl-tools for Parallels) are built for this same version.
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_7_2;
 
-  networking.hostName = "asus-nixos";
+  networking.hostName = "asus-nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -41,42 +46,22 @@
     LC_TIME = "nl_NL.UTF-8";
   };
 
-  # ===== HYPRLAND =====
-
-  # Hyprland itself is pure Wayland. The X server is only enabled so SDDM can
-  # run its greeter on X11, which is far more reliable than the Wayland greeter
-  # (the Wayland greeter pulls in kwin and often ends in a blinking cursor).
+  # Enable the X11 windowing system.
+  # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
 
-  # Keymap for the X11 greeter (Hyprland has its own keymap, set in hyprland.conf).
+  # Enable the KDE Plasma Desktop Environment.
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
+
+  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "nl";
     variant = "us";
   };
 
-  # Console keymap
+  # Configure console keymap
   console.keyMap = "nl";
-
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;  # Run X11 apps inside Hyprland
-  };
-
-  # SDDM display manager with an X11 greeter; Hyprland appears as a session.
-  services.displayManager.sddm.enable = true;
-  services.displayManager.defaultSession = "hyprland";
-
-  # Do NOT set WAYLAND_DISPLAY, XDG_SESSION_TYPE or XDG_CURRENT_DESKTOP here:
-  # the compositor sets those itself, and overriding them breaks the session.
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";  # Electron apps (VS Code, ...) use Wayland natively
-  };
-
-  # Authentication agent and touchpad support
-  security.polkit.enable = true;
-  services.libinput.enable = true;
-
-  # ====================
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -89,16 +74,22 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    # jack.enable = true;
   };
 
-  # Define a user account. Don't forget to set a password with 'passwd'.
+  # Enable touchpad support (enabled default in most desktopManager).
+  # services.libinput.enable = true;
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users."rvdveldt" = {
     isNormalUser = true;
     description = "Richard van der Veldt";
-    extraGroups = [ "networkmanager" "wheel" "video" ];
+    extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;  # Default login shell
     packages = with pkgs; [
       kdePackages.kate
+    #  thunderbird
     ];
   };
 
@@ -108,8 +99,10 @@
   # Enable zsh system-wide (required before it can be used as a login shell)
   programs.zsh = {
     enable = true;
+    # Configure OhMyZSH
     ohMyZsh = {
       enable = true;
+      # Setup Theme
       theme = "agnoster";
       plugins = [ "git" "sudo" "docker" ];
     };
@@ -123,41 +116,31 @@
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile.
+  # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
     gparted  # Partition Editor
     git      # Version control
-    openssh  # Provides ssh-keygen
+    openssh  # Provides ssh-keygen (there is no separate ssh-keygen package)
     btop     # Interactive resource monitor
-    fastfetch  # Fast system information tool
-    python3  # Python interpreter
-    libreoffice-qt6-fresh  # Office suite
-    vscode   # Visual Studio Code (unfree)
-    mistral-vibe  # Mistral Vibe CLI
-    unixodbc  # ODBC driver manager
-    mariadb.client  # MariaDB/MySQL client
-    zsh       # ZSH shell
-
-    # Hyprland desktop tooling
-    kitty     # Terminal (default in Hyprland's generated config)
-    alacritty # Alternative terminal
-    wofi      # Launcher (default in Hyprland's generated config)
-    rofi      # Alternative launcher
-    waybar    # Status bar
-    mako      # Notification daemon
-    hyprpolkitagent  # Polkit authentication agent for Hyprland
-    wl-clipboard  # Wayland clipboard utilities (wl-copy / wl-paste)
-    grim      # Screenshot utility for Wayland
-    slurp     # Region selection for screenshots
-    swaylock  # Screen locker
-    swayidle  # Idle management
-    kdePackages.dolphin  # File manager (default in Hyprland's generated config)
-    networkmanagerapplet # Network tray icon (nm-applet)
-    pavucontrol  # Volume control
+    fastfetch  # Fast system information tool (neofetch replacement)
+    python3  # Python interpreter (use venvs or nix-shell for project-specific libraries)
+    libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
+    vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
+    mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
+    unixodbc  # ODBC driver manager (provides isql / odbcinst for testing connections)
+    mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
+    #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #   wget
+    zsh       # Use ZSH as default, i.s.o. BASH
   ];
 
-  # ODBC driver registration
+  # ODBC driver registration. The generic environment.unixODBCDrivers option points to
+  # lib/libmaodbc.so, but in this package the library lives in lib/mariadb/, so the
+  # driver is registered by hand. The MariaDB driver also works for MySQL servers.
   environment.etc."odbcinst.ini".text =
     let
+      # The driver cannot find its own libmariadb.so.3 (same directory), so add that
+      # directory to the RPATH of libmaodbc.so. This rebuilds the package locally.
       mariadbOdbc = pkgs.unixodbcDrivers.mariadb.overrideAttrs (old: {
         nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.patchelf ];
         postFixup = (old.postFixup or "") + ''
@@ -170,18 +153,40 @@
       Driver = ${mariadbOdbc}/lib/mariadb/libmaodbc.so
     '';
 
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
+
+  # System-wide Environment settings and variables
+  environment.sessionVariables = {
+    LS_COLORS = "*.pdf=93";
+  };
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+
+  # NixOS Enable Flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  
   # Samba server: shares ~/shared with other machines on the network.
-  # After the first rebuild, set a Samba password once:  sudo smbpasswd -a rvdveldt
+  # After the first rebuild, set a Samba password once (it is separate
+  # from the login password):  sudo smbpasswd -a rvdveldt
   services.samba = {
     enable = true;
-    openFirewall = true;
+    openFirewall = true;  # Opens the required SMB ports in the firewall
     settings = {
       global = {
         "workgroup" = "WORKGROUP";
         "server string" = "nixos-vm";
         "netbios name" = "nixos";
         "security" = "user";
-        "map to guest" = "never";
+        "map to guest" = "never";  # No anonymous access
       };
       shared = {
         "path" = "/home/rvdveldt/shared";
@@ -201,13 +206,15 @@
     openFirewall = true;
   };
 
-  # Network discovery (Synology by name, *.local hostnames)
+  # Client-side network discovery for Dolphin (network:/ and smb://):
+  # Avahi (mDNS/Bonjour) lets the Synology show up by name and resolves *.local hostnames.
   services.avahi = {
     enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
+    nssmdns4 = true;      # Resolve .local names via mDNS
+    openFirewall = true;  # Opens UDP 5353 for mDNS
   };
 
+  # WS-Discovery replies come in on UDP 3702; KDE uses this to find SMB servers
   networking.firewall.allowedUDPPorts = [ 3702 ];
 
   # Make sure the shared directory exists, owned by the user
@@ -215,10 +222,34 @@
     "d /home/rvdveldt/shared 0755 rvdveldt users -"
   ];
 
-  # NixOS Enable Flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
 
-  # Do NOT change this after the initial install.
-  system.stateVersion = "26.05";
+  # Copy the NixOS configuration file and link it from the resulting system
+  # (/run/current-system/configuration.nix). This is useful in case you
+  # accidentally delete configuration.nix.
+  # system.copySystemConfiguration = true;
+
+  # This option defines the first version of NixOS you have installed on this particular machine,
+  # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
+  #
+  # Most users should NEVER change this value after the initial install, for any reason,
+  # even if you've upgraded your system to a new NixOS release.
+  #
+  # This value does NOT affect the Nixpkgs version your packages and OS are pulled from,
+  # so changing it will NOT upgrade your system - see https://nixos.org/manual/nixos/stable/#sec-upgrading for how
+  # to actually do that.
+  #
+  # This value being lower than the current NixOS release does NOT mean your system is
+  # out of date, out of support, or vulnerable.
+  #
+  # Do NOT change this value unless you have manually inspected all the changes it would make to your configuration,
+  # and migrated your data accordingly.
+  #
+  # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
+  system.stateVersion = "26.05"; # Did you read the comment?
 
 }

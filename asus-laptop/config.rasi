@@ -1,0 +1,86 @@
+/* Rofi: compact start menu with icons.
+   Copy to ~/.config/rofi/config.rasi */
+
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    display-drun: " ";
+    display-run: " ";
+    display-window: " ";
+    drun-display-format: "{name}";
+    font: "monospace 12";
+}
+
+* {
+    bg: #1e1e2eee;
+    bg-alt: #313244;
+    fg: #cdd6f4;
+    accent: #89b4fa;
+}
+
+window {
+    width: 520px;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 12px;
+    background-color: @bg;
+}
+
+mainbox {
+    padding: 12px;
+    spacing: 8px;
+    background-color: transparent;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    padding: 8px 12px;
+    spacing: 8px;
+    border-radius: 8px;
+    background-color: @bg-alt;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @accent;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg;
+    placeholder: "Zoeken...";
+    placeholder-color: #6c7086;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    scrollbar: false;
+    spacing: 4px;
+    background-color: transparent;
+}
+
+element {
+    padding: 8px 12px;
+    spacing: 10px;
+    border-radius: 8px;
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color: #1e1e2e;
+}
+
+element-icon {
+    size: 28px;
+    background-color: transparent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+}

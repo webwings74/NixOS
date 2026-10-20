@@ -161,6 +161,11 @@
   #   enableSSHSupport = true;
   # };
 
+  # System-wide Environment settings and variables
+  environment.sessionVariables = {
+    LS_COLORS = "*.pdf=93";
+  };
+
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
