@@ -1,0 +1,147 @@
+# SwayFX config. Copy to ~/.config/sway/config
+# (mkdir -p ~/.config/sway && cp sway-config ~/.config/sway/config)
+
+### Variables
+set $mod Mod4
+set $term kitty
+set $menu rofi -show drun
+
+font pango:monospace 10
+floating_modifier $mod normal
+
+# Required on NixOS: dbus/systemd integration for portals and GTK apps
+include /etc/sway/config.d/*
+exec dbus-update-activation-environment --all
+
+### Input
+input * {
+    xkb_layout nl
+    xkb_variant us
+}
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
+### Output and pointer
+output * bg #1e1e2e solid_color
+seat * xcursor_theme Adwaita 24
+
+# Only if the pointer is invisible or glitchy in a VM (Parallels):
+# seat * hide_cursor 0
+# (and start sway with WLR_NO_HARDWARE_CURSORS=1)
+
+### Look
+default_border pixel 2
+default_floating_border pixel 2
+gaps inner 8
+gaps outer 4
+smart_borders on
+
+#                        border    background text      indicator child_border
+client.focused           #89b4fa   #1e1e2e    #cdd6f4   #89b4fa   #89b4fa
+client.focused_inactive  #45475a   #1e1e2e    #cdd6f4   #45475a   #45475a
+client.unfocused         #313244   #1e1e2e    #6c7086   #313244   #313244
+
+### SwayFX effects
+corner_radius 12
+shadows enable
+shadow_blur_radius 20
+shadow_color #00000070
+blur enable
+blur_radius 7
+blur_passes 3
+default_dim_inactive 0.08
+dim_inactive_colors.unfocused #000000ff
+
+# Blur behind the bar and the launcher too
+layer_effects "waybar" blur enable; shadows enable
+layer_effects "rofi" blur enable; shadows enable; corner_radius 12
+
+### Autostart
+exec mako
+exec nm-applet --indicator
+exec swayidle -w \
+    timeout 300 'swaylock -f -c 1e1e2e' \
+    timeout 600 'swaymsg "output * power off"' \
+        resume 'swaymsg "output * power on"' \
+    before-sleep 'swaylock -f -c 1e1e2e'
+
+### Bar (Waybar)
+bar {
+    swaybar_command waybar
+}
+
+### Keybindings
+bindsym $mod+Return exec $term
+bindsym $mod+q kill
+bindsym $mod+r exec $menu
+bindsym $mod+space exec pkill rofi || rofi -show drun
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Sway afsluiten?' -B 'Ja, afsluiten' 'swaymsg exit'
+bindsym $mod+l exec swaylock -f -c 1e1e2e
+
+# Focus
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move windows
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Workspaces
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+
+# Layout
+bindsym $mod+b splith
+bindsym $mod+v splitv
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+bindsym $mod+f fullscreen
+bindsym $mod+Shift+space floating toggle
+
+# Resize mode
+mode "resize" {
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Control+r mode "resize"
+
+# Screenshots (saved in ~/Screenshots and copied to the clipboard)
+bindsym Print exec mkdir -p ~/Screenshots && grim - | tee ~/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy
+bindsym $mod+Shift+s exec mkdir -p ~/Screenshots && grim -g "$(slurp)" - | tee ~/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy
+
+# Volume
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Inhibit idle/lock for fullscreen apps
+for_window [app_id="^.*"] inhibit_idle fullscreen
