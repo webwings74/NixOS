@@ -4,6 +4,36 @@
 
 { config, pkgs, ... }:
 
+let
+  # SolidCraft: parametrische CAD-software, niet beschikbaar in nixpkgs.
+  # Gepakt als AppImage uit de officiële GitHub release (v0.12.0).
+  # https://solidcraft.io/download/
+  solidcraftVersion = "0.12.0";
+  solidcraftSrc = pkgs.fetchurl {
+    url = "https://github.com/tangency-labs/solidcraft/releases/download/v${solidcraftVersion}/solidcraft-${solidcraftVersion}-linux-x86_64.AppImage";
+    sha256 = "de8285f42733ddd1eda69d63b8fa1d58152bf10b90687b228d89403532c050d6";
+  };
+  solidcraft = pkgs.appimageTools.wrapType2 {
+    pname = "solidcraft";
+    version = solidcraftVersion;
+    src = solidcraftSrc;
+    extraPkgs = pkgs: with pkgs; [ ];
+  };
+  # De AppImage bevat zelf een .desktop-bestand en icoon, maar wrapType2
+  # installeert die niet automatisch. Hier pakken we ze alsnog uit en zetten
+  # ze op hun standaardplek, zodat SolidCraft in het startmenu verschijnt.
+  solidcraftExtracted = pkgs.appimageTools.extractType2 {
+    pname = "solidcraft";
+    version = solidcraftVersion;
+    src = solidcraftSrc;
+  };
+  solidcraftDesktopItem = pkgs.runCommand "solidcraft-desktop-item" { } ''
+    install -Dm444 ${solidcraftExtracted}/ai.storyteller.solidcraft.desktop \
+      $out/share/applications/ai.storyteller.solidcraft.desktop
+    install -Dm444 ${solidcraftExtracted}/ai.storyteller.solidcraft.png \
+      $out/share/icons/hicolor/256x256/apps/ai.storyteller.solidcraft.png
+  '';
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -64,7 +94,38 @@
   console.keyMap = "nl";
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # Network printers (such as the Epson) are discovered via Avahi/mDNS, which is
+  # enabled further down in this file (services.avahi).
+  services.printing = {
+    enable = true;
+    # Epson drivers, used as a fallback when the printer does not support
+    # driverless IPP Everywhere printing:
+    #   epson-escpr2 = newer Epson inkjets (XP-, ET-, WF-series)
+    #   epson-escpr  = older Epson inkjets
+    drivers = [ pkgs.epson-escpr2 pkgs.epson-escpr ];
+  };
+
+  # Optional: declarative printer definition. Uncomment and fill in the IP address
+  # of the Epson (preferably a fixed address / DHCP reservation in the router).
+  # model = "everywhere" uses driverless IPP; replace it with a driver PPD name
+  # if the printer needs one of the drivers above.
+  # hardware.printers = {
+  #   ensurePrinters = [
+  #     {
+  #       name = "Epson";
+  #       deviceUri = "ipp://192.168.1.50/ipp/print";  # Replace with the printer's IP
+  #       model = "everywhere";
+  #     }
+  #   ];
+  #   ensureDefaultPrinter = "Epson";
+  # };
+
+  # Optional: scanning support for Epson multifunction printers.
+  # sane-airscan provides driverless network scanning (eSCL/AirScan).
+  # hardware.sane = {
+  #   enable = true;
+  #   extraBackends = [ pkgs.sane-airscan ];
+  # };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -127,8 +188,11 @@
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
+    claude-code  # Claude Code CLI by Anthropic, terminal coding assistant (provides the `claude` command; unfree, allowed via nixpkgs.config.allowUnfree)
     unixodbc  # ODBC driver manager (provides isql / odbcinst for testing connections)
     mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
+    solidcraft  # Parametric CAD software (packaged above from the upstream AppImage release)
+    solidcraftDesktopItem  # .desktop entry + icon for SolidCraft, extracted from the AppImage above
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #   wget
     zsh       # Use ZSH as default, i.s.o. BASH
@@ -160,6 +224,11 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+  # System-wide Environment settings and variables
+  environment.sessionVariables = {
+    LS_COLORS = "*.pdf=93";
+  };
 
   # List services that you want to enable:
 

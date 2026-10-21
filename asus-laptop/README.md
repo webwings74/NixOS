@@ -4,11 +4,13 @@ Deze repository bevat de NixOS configuratiebestanden voor een Asus laptop (hostn
 
 ## Configuratiebestanden
 
-- `configuration.nix` - Hoofdconfiguratie (momentueel geconfigureerd voor KDE Plasma 6)
-- `configuration.kde.nix` - KDE Plasma specifieke configuratie
-- `configuration.nix.swayfx` - SwayFX Window Manager configuratie (experimenteel)
-- `configuration.nix.kde-backup` - Backup van eerdere KDE configuratie
-- `hardware-configuration.nix` - Hardware specifieke instellingen
+Er zijn drie volwaardige, onderling gesynchroniseerde configuraties voor dezelfde laptop (zelfde hostname, gebruiker, netwerk, printers, pakketten, SolidCraft, enz.), die elk hun eigen desktop-omgeving opzetten:
+
+- `configuration.nix` - **Actieve configuratie** (op dit moment een kopie van de KDE-variant, zie hieronder). Dit bestand wordt naar `/etc/nixos/configuration.nix` gekopieerd en gebruikt door `nixos-rebuild switch`.
+- `configuration.nix.kde` - KDE Plasma 6 variant (identiek aan de huidige `configuration.nix`)
+- `configuration.nix.hyprland` - Hyprland (Wayland) variant, met Waybar, Rofi en bijbehorende Wayland-tools
+- `configuration.nix.swayfx` - SwayFX variant (Sway-fork met blur/shadows/rounded corners), met Kitty, Rofi, Waybar, Mako, Dolphin
+- `hardware-configuration.nix` - Hardware specifieke instellingen (gedeeld door alle drie de varianten)
 - `hyprland-snippet.conf` - Extra Hyprland configuratie
 - `config.rasi` - Rofi configuratie voor startmenu
 - `sway-config` - Sway configuratie
@@ -77,16 +79,13 @@ Kleurcodes:
 ## Desktop Omgevingen
 
 ### KDE Plasma
-Momentueel actief. Gebruik:
-```bash
-sudo nixos-rebuild switch --build-host localhost
-```
+Momentueel actief (`configuration.nix`, identiek aan `configuration.nix.kde`).
 
 ### Hyprland (Wayland)
-Toekomstige configuratie. De basisconfiguratie is aanwezig in `configuration.nix` commentaar.
+Volwaardige configuratie in `configuration.nix.hyprland`, nog niet actief.
 
 ### SwayFX
-Experimentele configuratie beschikbaar in `configuration.nix.swayfx`.
+Volwaardige configuratie in `configuration.nix.swayfx`, nog niet actief (experimenteel).
 
 ## Gebruik
 
@@ -97,13 +96,16 @@ Experimentele configuratie beschikbaar in `configuration.nix.swayfx`.
    ```
 
 2. **Configuratie wijzigen:**
-   - Bewerk het gewenste configuratiebestand
+   - Bewerk het gewenste configuratiebestand in deze repository
+   - Kopieer het naar `/etc/nixos/configuration.nix`
    - Voer uit: `sudo nixos-rebuild switch`
 
-3. **Specifieke configuratie activeren:**
+3. **Overschakelen naar een andere desktop-omgeving:**
    ```bash
-   sudo nixos-rebuild switch -I nixos-config=/path/naar/configuration.nix
+   sudo cp ~/Projecten/NixOS/asus-laptop/configuration.nix.hyprland /etc/nixos/configuration.nix
+   sudo nixos-rebuild switch
    ```
+   (vervang `configuration.nix.hyprland` door `configuration.nix.kde` of `configuration.nix.swayfx` voor de andere omgevingen). Werk na het overschakelen ook `configuration.nix` in deze repository bij, zodat die de actieve variant blijft weerspiegelen.
 
 ## Netwerk
 
@@ -123,6 +125,8 @@ Experimentele configuratie beschikbaar in `configuration.nix.swayfx`.
 
 ## Pakketten
 
+De onderstaande pakketten staan in alle drie de varianten (`configuration.nix` / `.kde`, `.hyprland`, `.swayfx`). Elke variant voegt daarnaast zijn eigen desktop-specifieke tooling toe (bv. Waybar/Rofi voor Hyprland en SwayFX, Dolphin/Mako/pavucontrol voor SwayFX) - zie het `environment.systemPackages`-blok in het betreffende bestand.
+
 Belangrijke geïnstalleerde pakketten:
 - `gparted` - Partitie editor
 - `git` - Versiebeheer
@@ -138,6 +142,7 @@ Belangrijke geïnstalleerde pakketten:
 - `mariadb.client` - MariaDB/MySQL command-line client (`mariadb` en `mysql`)
 - `kdePackages.kate` - Teksteditor (alleen voor gebruiker `rvdveldt`)
 - `zsh` - Shell met OhMyZsh
+- `solidcraft` - Parametrische CAD-software (v0.12.0), niet in nixpkgs, zelf gepakt uit de officiële Linux x64 AppImage via `pkgs.appimageTools.wrapType2` (zie `let`-blok bovenin `configuration.nix`). Start met `solidcraft`, of via het startmenu/Krunner (icoon en `.desktop`-entry komen van `solidcraftDesktopItem`, uitgepakt uit dezelfde AppImage).
 
 ### Claude Code gebruiken
 
@@ -196,6 +201,12 @@ Bij problemen met de configuratie:
 ### 2026-10-21
 - `claude-code` toegevoegd aan `environment.systemPackages` (commando `claude`).
 - README bijgewerkt met systeeminstellingen, printen, ZSH, ODBC-details en het gebruik van Claude Code.
+- `solidcraft` toegevoegd: parametrische CAD-software, gepakt als AppImage (v0.12.0) via `pkgs.appimageTools.wrapType2` omdat het niet in nixpkgs/Flathub staat.
+- `solidcraftDesktopItem` toegevoegd: `.desktop`-entry en icoon voor SolidCraft, uitgepakt uit dezelfde AppImage zodat het ook in het startmenu verschijnt.
+- `configuration.nix` gekopieerd naar `configuration.nix.kde` (expliciete KDE-variant naast de actieve configuratie).
+- `configuration.nix.hyprland` en `configuration.nix.swayfx` gesynchroniseerd met `configuration.nix`: SolidCraft-packaging (inclusief desktop-item), `claude-code`, de Epson-printerdrivers (`epson-escpr2`/`epson-escpr`) en de `LS_COLORS`-instelling waren daar nog niet in opgenomen.
+- Verouderde bestandsverwijzing in de koptekst van `configuration.nix.swayfx` hersteld (verwees nog naar de oude bestandsnamen `configuration.nix`/`configuration.kde.nix` voor Hyprland/KDE).
+- README-secties "Configuratiebestanden", "Desktop Omgevingen", "Gebruik" en "Pakketten" bijgewerkt: verwijzingen naar het niet meer bestaande `configuration.kde.nix`/`configuration.nix.kde-backup` verwijderd, `configuration.nix.hyprland` toegevoegd, en uitgelegd hoe je tussen de drie varianten wisselt.
 
 ---
 

@@ -4,6 +4,36 @@
 
 { config, pkgs, ... }:
 
+let
+  # SolidCraft: parametrische CAD-software, niet beschikbaar in nixpkgs.
+  # Gepakt als AppImage uit de officiële GitHub release (v0.12.0).
+  # https://solidcraft.io/download/
+  solidcraftVersion = "0.12.0";
+  solidcraftSrc = pkgs.fetchurl {
+    url = "https://github.com/tangency-labs/solidcraft/releases/download/v${solidcraftVersion}/solidcraft-${solidcraftVersion}-linux-x86_64.AppImage";
+    sha256 = "de8285f42733ddd1eda69d63b8fa1d58152bf10b90687b228d89403532c050d6";
+  };
+  solidcraft = pkgs.appimageTools.wrapType2 {
+    pname = "solidcraft";
+    version = solidcraftVersion;
+    src = solidcraftSrc;
+    extraPkgs = pkgs: with pkgs; [ ];
+  };
+  # De AppImage bevat zelf een .desktop-bestand en icoon, maar wrapType2
+  # installeert die niet automatisch. Hier pakken we ze alsnog uit en zetten
+  # ze op hun standaardplek, zodat SolidCraft in het startmenu verschijnt.
+  solidcraftExtracted = pkgs.appimageTools.extractType2 {
+    pname = "solidcraft";
+    version = solidcraftVersion;
+    src = solidcraftSrc;
+  };
+  solidcraftDesktopItem = pkgs.runCommand "solidcraft-desktop-item" { } ''
+    install -Dm444 ${solidcraftExtracted}/ai.storyteller.solidcraft.desktop \
+      $out/share/applications/ai.storyteller.solidcraft.desktop
+    install -Dm444 ${solidcraftExtracted}/ai.storyteller.solidcraft.png \
+      $out/share/icons/hicolor/256x256/apps/ai.storyteller.solidcraft.png
+  '';
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -70,6 +100,7 @@
     WAYLAND_DISPLAY = "wayland-1";
     XDG_SESSION_TYPE = "wayland";
     XDG_CURRENT_DESKTOP = "Hyprland";
+    LS_COLORS = "*.pdf=93";
   };
 
   # Enable touchpad support for Wayland
@@ -78,7 +109,15 @@
   # ==========================================
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # Network printers (such as the Epson) are discovered via Avahi/mDNS.
+  services.printing = {
+    enable = true;
+    # Epson drivers, used as a fallback when the printer does not support
+    # driverless IPP Everywhere printing:
+    #   epson-escpr2 = newer Epson inkjets (XP-, ET-, WF-series)
+    #   epson-escpr  = older Epson inkjets
+    drivers = [ pkgs.epson-escpr2 pkgs.epson-escpr ];
+  };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -131,8 +170,11 @@
     libreoffice-qt6-fresh  # Office suite
     vscode   # Visual Studio Code (unfree)
     mistral-vibe  # Mistral Vibe CLI
+    claude-code  # Claude Code CLI by Anthropic, terminal coding assistant (provides the `claude` command; unfree, allowed via nixpkgs.config.allowUnfree)
     unixodbc  # ODBC driver manager
     mariadb.client  # MariaDB/MySQL client
+    solidcraft  # Parametric CAD software (packaged above from the upstream AppImage release)
+    solidcraftDesktopItem  # .desktop entry + icon for SolidCraft, extracted from the AppImage above
     zsh       # ZSH shell
     # Hyprland-specific packages
     waybar    # Status bar
