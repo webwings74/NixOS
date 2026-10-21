@@ -11,6 +11,16 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Added curl, wget, rsync, unzip, fd, ripgrep, bat, eza, ncdu
+- **System packages:** `curl`, `wget`, `rsync`, `unzip`, `fd` (fast `find` alternative),
+  `ripgrep` (provides `rg`), `bat` (`cat` with syntax highlighting), `eza` (modern `ls`),
+  and `ncdu` (interactive disk usage analyzer) — matching the same addition made across
+  all `asus-laptop` variants.
+
+### Added tree and fzf
+- **System packages:** `tree` (recursive directory listing) and `fzf` (fuzzy finder for files
+  and shell history), matching the same addition made across all `asus-laptop` variants.
+
 ### Synced with asus-laptop's KDE config (locale, zsh, claude-code)
 Brought `configuration.nix` in line with conventions already established in `asus-laptop`'s
 `configuration.nix.kde` variant, skipping anything tied to x86_64 or to asus's physical hardware:
