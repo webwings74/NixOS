@@ -11,6 +11,23 @@ NixOS 26.05 guest running KDE Plasma 6, hostname `nixos`, user `rvdveldt`.
 
 ## Changelog
 
+### Synced with asus-laptop's KDE config (locale, zsh, claude-code)
+Brought `configuration.nix` in line with conventions already established in `asus-laptop`'s
+`configuration.nix.kde` variant, skipping anything tied to x86_64 or to asus's physical hardware:
+- **Locale:** added `i18n.extraLocaleSettings` (all `LC_*` set to `nl_NL.UTF-8`), matching the
+  convention used on asus. Only `i18n.defaultLocale` was set before.
+- **Console keymap:** added `console.keyMap = "nl";`. The X11 keymap (`us` / `mac-iso`) was
+  deliberately left unchanged — it matches the physical MacBook keyboard passed through by
+  Parallels, unlike asus's `nl`/`us` which matches a physical PC keyboard.
+- **zsh:** enabled Oh My Zsh (`theme = "agnoster"`, plugins `git sudo docker`). Previously only
+  `programs.zsh.enable = true;` was set, missing the Oh My Zsh config that's supposed to be
+  standard across all machines per the repo-wide convention.
+- **Packages:** added `claude-code` (unfree, already allowed via `allowUnfree`).
+- **Session variables:** added `environment.sessionVariables.LS_COLORS = "*.pdf=93";`.
+- **Deliberately NOT copied:** SolidCraft (x86_64-only AppImage, won't run on aarch64), the
+  extended Epson/CUPS printing section (tied to asus's physical printer), and `gparted` (less
+  relevant inside a VM).
+
 ### Fixed evaluation warnings (renamed packages)
 - `unixODBC` is now `unixodbc` and `unixODBCDrivers` is now `unixodbcDrivers` in nixpkgs.
   Updated in `configuration.nix`; the old names still worked but gave warnings.

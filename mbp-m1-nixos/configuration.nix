@@ -60,6 +60,9 @@
     variant = "mac-iso";
   };
 
+  # Configure console keymap
+  console.keyMap = "nl";
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
@@ -94,7 +97,16 @@
   programs.firefox.enable = true;
 
   # Enable zsh system-wide (required before it can be used as a login shell)
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    # Configure OhMyZSH
+    ohMyZsh = {
+      enable = true;
+      # Setup Theme
+      theme = "agnoster";
+      plugins = [ "git" "sudo" "docker" ];
+    };
+  };
 
   # nix-ld: lets prebuilt, dynamically linked Linux binaries run on NixOS.
   # Needed for the Claude Code VS Code extension, which ships a generic native binary.
@@ -114,6 +126,7 @@
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
+    claude-code  # Claude Code CLI by Anthropic, terminal coding assistant (provides the `claude` command; unfree, allowed via nixpkgs.config.allowUnfree)
     unixodbc  # ODBC driver manager (provides isql / odbcinst for testing connections)
     mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
@@ -146,6 +159,11 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+  # System-wide Environment settings and variables
+  environment.sessionVariables = {
+    LS_COLORS = "*.pdf=93";
+  };
 
   # List services that you want to enable:
 
