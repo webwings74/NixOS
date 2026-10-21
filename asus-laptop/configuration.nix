@@ -6,12 +6,12 @@
 
 let
   # SolidCraft: parametrische CAD-software, niet beschikbaar in nixpkgs.
-  # Gepakt als AppImage uit de officiële GitHub release (v0.12.0).
+  # Gepakt als AppImage uit de officiële GitHub release (v0.18.2).
   # https://solidcraft.io/download/
-  solidcraftVersion = "0.12.0";
+  solidcraftVersion = "0.18.2";
   solidcraftSrc = pkgs.fetchurl {
     url = "https://github.com/tangency-labs/solidcraft/releases/download/v${solidcraftVersion}/solidcraft-${solidcraftVersion}-linux-x86_64.AppImage";
-    sha256 = "de8285f42733ddd1eda69d63b8fa1d58152bf10b90687b228d89403532c050d6";
+    sha256 = "a227c1e632b407c13141fa0fd72e81ec9dab6fb63231a40d3cbcf636ba758e51";
   };
   solidcraft = pkgs.appimageTools.wrapType2 {
     pname = "solidcraft";
