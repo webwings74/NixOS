@@ -11,9 +11,10 @@ Er zijn drie volwaardige, onderling gesynchroniseerde configuraties voor dezelfd
 - `configuration.nix.hyprland` - Hyprland (Wayland) variant, met Waybar, Rofi en bijbehorende Wayland-tools
 - `configuration.nix.swayfx` - SwayFX variant (Sway-fork met blur/shadows/rounded corners), met Kitty, Rofi, Waybar, Mako, Dolphin
 - `hardware-configuration.nix` - Hardware specifieke instellingen (gedeeld door alle drie de varianten)
-- `hyprland-snippet.conf` - Extra Hyprland configuratie
-- `config.rasi` - Rofi configuratie voor startmenu
-- `sway-config` - Sway configuratie
+- `hyprland-snippet.conf` - Extra Hyprland configuratie (aanvulling, geen vervanging, op `~/.config/hypr/hyprland.conf`)
+- `config.rasi` - Rofi configuratie voor startmenu (Hyprland en SwayFX)
+- `sway-config` - Sway configuratie (volledige `~/.config/sway/config`)
+- `switch-desktop.sh` - Script om tussen de drie varianten te wisselen (zie "Gebruik" hieronder)
 
 ## Systeeminstellingen
 
@@ -102,10 +103,22 @@ Volwaardige configuratie in `configuration.nix.swayfx`, nog niet actief (experim
 
 3. **Overschakelen naar een andere desktop-omgeving:**
    ```bash
+   ./switch-desktop.sh {kde|hyprland|swayfx}
+   ```
+   Dit script (`switch-desktop.sh`):
+   - controleert de syntax van de gekozen `configuration.nix.<variant>`;
+   - kopieert 'm naar `/etc/nixos/configuration.nix` (met `sudo`);
+   - zet voor Hyprland/SwayFX de bijbehorende Rofi-config (`config.rasi`) klaar in `~/.config/rofi/config.rasi`, en voor SwayFX ook `sway-config` in `~/.config/sway/config`. De Hyprland-snippet (`hyprland-snippet.conf`) wordt **niet** automatisch in een bestaande `~/.config/hypr/hyprland.conf` geplakt (dat zou 'm kunnen overschrijven) - hij wordt alleen klaargezet in `~/.config/hypr/hyprland-snippet.conf` om handmatig samen te voegen;
+   - werkt de repo-kopie van `configuration.nix` bij naar de gekozen variant;
+   - draait `sudo nixos-rebuild boot` (bouwt de nieuwe generatie en zet 'm als standaard boot-entry, zonder de lopende sessie te raken).
+
+   Voeg `-y`/`--yes` toe om de bevestigingsvraag over te slaan. Herstart daarna (`sudo reboot`) om de nieuwe omgeving te activeren.
+
+   Handmatig kan ook nog steeds:
+   ```bash
    sudo cp ~/Projecten/NixOS/asus-laptop/configuration.nix.hyprland /etc/nixos/configuration.nix
    sudo nixos-rebuild switch
    ```
-   (vervang `configuration.nix.hyprland` door `configuration.nix.kde` of `configuration.nix.swayfx` voor de andere omgevingen). Werk na het overschakelen ook `configuration.nix` in deze repository bij, zodat die de actieve variant blijft weerspiegelen.
 
 ## Netwerk
 
@@ -207,6 +220,7 @@ Bij problemen met de configuratie:
 - `configuration.nix.hyprland` en `configuration.nix.swayfx` gesynchroniseerd met `configuration.nix`: SolidCraft-packaging (inclusief desktop-item), `claude-code`, de Epson-printerdrivers (`epson-escpr2`/`epson-escpr`) en de `LS_COLORS`-instelling waren daar nog niet in opgenomen.
 - Verouderde bestandsverwijzing in de koptekst van `configuration.nix.swayfx` hersteld (verwees nog naar de oude bestandsnamen `configuration.nix`/`configuration.kde.nix` voor Hyprland/KDE).
 - README-secties "Configuratiebestanden", "Desktop Omgevingen", "Gebruik" en "Pakketten" bijgewerkt: verwijzingen naar het niet meer bestaande `configuration.kde.nix`/`configuration.nix.kde-backup` verwijderd, `configuration.nix.hyprland` toegevoegd, en uitgelegd hoe je tussen de drie varianten wisselt.
+- `switch-desktop.sh` toegevoegd: kopieert de gekozen variant naar `/etc/nixos/configuration.nix`, zet de bijbehorende Rofi-/Sway-dotfiles klaar in `~/.config`, werkt de repo-kopie van `configuration.nix` bij, en draait `sudo nixos-rebuild boot`.
 
 ---
 
