@@ -184,6 +184,17 @@ in
     openssh  # Provides ssh-keygen (there is no separate ssh-keygen package)
     btop     # Interactive resource monitor
     fastfetch  # Fast system information tool (neofetch replacement)
+    tree     # Recursive directory listing
+    fzf      # Fuzzy finder for files and shell history
+    curl     # Transfer data from/to a URL
+    wget     # Download files over HTTP(S)/FTP
+    rsync    # Efficient file synchronization/transfer
+    unzip    # Extract .zip archives
+    fd       # Fast, user-friendly alternative to find
+    ripgrep  # Fast recursive grep (provides the `rg` command)
+    bat      # cat with syntax highlighting and git integration
+    eza      # Modern ls replacement (colors, git status, tree view)
+    ncdu     # Interactive disk usage analyzer
     python3  # Python interpreter (use venvs or nix-shell for project-specific libraries)
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)

@@ -186,6 +186,17 @@ in
     openssh  # Provides ssh-keygen
     btop     # Interactive resource monitor
     fastfetch  # Fast system information tool
+    tree     # Recursive directory listing
+    fzf      # Fuzzy finder for files and shell history
+    curl     # Transfer data from/to a URL
+    wget     # Download files over HTTP(S)/FTP
+    rsync    # Efficient file synchronization/transfer
+    unzip    # Extract .zip archives
+    fd       # Fast, user-friendly alternative to find
+    ripgrep  # Fast recursive grep (provides the `rg` command)
+    bat      # cat with syntax highlighting and git integration
+    eza      # Modern ls replacement (colors, git status, tree view)
+    ncdu     # Interactive disk usage analyzer
     python3  # Python interpreter
     libreoffice-qt6-fresh  # Office suite
     vscode   # Visual Studio Code (unfree)

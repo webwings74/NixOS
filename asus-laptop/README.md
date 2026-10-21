@@ -146,6 +146,17 @@ Belangrijke geïnstalleerde pakketten:
 - `openssh` - SSH client/server (levert `ssh-keygen`)
 - `btop` - Systeemmonitor
 - `fastfetch` - Systeeminformatie
+- `tree` - Recursieve directory listing
+- `fzf` - Fuzzy finder voor bestanden en shell-historie
+- `curl` - Data op- en downloaden via URL's
+- `wget` - Bestanden downloaden via HTTP(S)/FTP
+- `rsync` - Efficiënt bestanden synchroniseren/overzetten
+- `unzip` - .zip-archieven uitpakken
+- `fd` - Snellere, gebruiksvriendelijkere `find`
+- `ripgrep` - Snelle recursieve grep (commando `rg`)
+- `bat` - `cat` met syntax highlighting en git-integratie
+- `eza` - Moderne `ls`-vervanging (kleuren, git status, boomweergave)
+- `ncdu` - Interactieve disk usage analyzer
 - `python3` - Python interpreter (gebruik venvs of nix-shell voor projectspecifieke bibliotheken)
 - `libreoffice-qt6-fresh` - Kantoorsuite (Qt6, past bij KDE Plasma)
 - `vscode` - Code editor
@@ -210,6 +221,16 @@ Bij problemen met de configuratie:
 3. Raadpleeg de [NixOS handleiding](https://nixos.org/manual/)
 
 ## Wijzigingslog
+
+### 2026-10-21 (nog later)
+- `curl`, `wget`, `rsync`, `unzip`, `fd`, `ripgrep`, `bat`, `eza` en `ncdu` toegevoegd aan
+  `environment.systemPackages` in alle drie de varianten (`configuration.nix`,
+  `configuration.nix.kde`, `configuration.nix.hyprland`, `configuration.nix.swayfx`).
+
+### 2026-10-21 (later)
+- `tree` en `fzf` toegevoegd aan `environment.systemPackages` in alle drie de varianten
+  (`configuration.nix`, `configuration.nix.kde`, `configuration.nix.hyprland`,
+  `configuration.nix.swayfx`).
 
 ### 2026-10-21
 - `claude-code` toegevoegd aan `environment.systemPackages` (commando `claude`).
