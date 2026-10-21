@@ -64,7 +64,38 @@
   console.keyMap = "nl";
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # Network printers (such as the Epson) are discovered via Avahi/mDNS, which is
+  # enabled further down in this file (services.avahi).
+  services.printing = {
+    enable = true;
+    # Epson drivers, used as a fallback when the printer does not support
+    # driverless IPP Everywhere printing:
+    #   epson-escpr2 = newer Epson inkjets (XP-, ET-, WF-series)
+    #   epson-escpr  = older Epson inkjets
+    drivers = [ pkgs.epson-escpr2 pkgs.epson-escpr ];
+  };
+
+  # Optional: declarative printer definition. Uncomment and fill in the IP address
+  # of the Epson (preferably a fixed address / DHCP reservation in the router).
+  # model = "everywhere" uses driverless IPP; replace it with a driver PPD name
+  # if the printer needs one of the drivers above.
+  # hardware.printers = {
+  #   ensurePrinters = [
+  #     {
+  #       name = "Epson";
+  #       deviceUri = "ipp://192.168.1.50/ipp/print";  # Replace with the printer's IP
+  #       model = "everywhere";
+  #     }
+  #   ];
+  #   ensureDefaultPrinter = "Epson";
+  # };
+
+  # Optional: scanning support for Epson multifunction printers.
+  # sane-airscan provides driverless network scanning (eSCL/AirScan).
+  # hardware.sane = {
+  #   enable = true;
+  #   extraBackends = [ pkgs.sane-airscan ];
+  # };
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -127,6 +158,7 @@
     libreoffice-qt6-fresh  # Office suite (Qt6 build, matches the KDE Plasma desktop)
     vscode   # Visual Studio Code editor (unfree, allowed via nixpkgs.config.allowUnfree)
     mistral-vibe  # Mistral Vibe CLI, command-line coding assistant (provides the `vibe` command)
+    claude-code  # Claude Code CLI by Anthropic, terminal coding assistant (provides the `claude` command; unfree, allowed via nixpkgs.config.allowUnfree)
     unixodbc  # ODBC driver manager (provides isql / odbcinst for testing connections)
     mariadb.client  # MariaDB/MySQL command-line client (provides the `mariadb` and `mysql` commands)
     #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
