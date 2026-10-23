@@ -50,7 +50,7 @@ in
   # Kernel modules (such as prl-tools for Parallels) are built for this same version.
   boot.kernelPackages = pkgs.linuxKernel.packages.linux_7_2;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "macbook-nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
