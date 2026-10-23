@@ -282,6 +282,11 @@ in
   # WS-Discovery replies come in on UDP 3702; KDE uses this to find SMB servers.
   networking.firewall.allowedUDPPorts = [ 3702 ];
 
+  # TEMPORARY: uitgezet om te testen of de firewall de Raise3D-printer-discovery
+  # in ideaMaker blokkeert. Zet dit na de test weer terug naar true (of verwijder
+  # de regel, want enabled is de NixOS-default).
+  networking.firewall.enable = false;
+
   # Make sure the shared directory exists, owned by the user.
   systemd.tmpfiles.rules = [
     "d /home/rvdveldt/shared 0755 rvdveldt users -"
