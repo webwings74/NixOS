@@ -15,5 +15,8 @@ configuration files are in the subfolder mbp-m1-nixos, including the relevant RE
 This used to be a Windows laptop, which got really sluggish and unuseable. The hardware configuration
 is a bit different, a second harddrive (/dev/sda1) is mounted as /home for all user data.
 
+### MSI Tuxedo NixOS Computer
+The big computer with an nVidia RTX4090 GPU and running NixOS and Windows next to another.
+
 ## Synology
 As an extra backup, the repository is pushed to my Synology NAS. Therefore I needed a .gitignore file to leave some specific NAS files from the repository.
